@@ -6,7 +6,7 @@
 class Color : public QColor
 {
 public:
-    Color(qreal r, qreal g, qreal b, qreal alpha = 1.0)
+    Color(qreal r = 0.0, qreal g = 0.0, qreal b = 0.0, qreal alpha = 1.0)
     {
         setRedF(r), setGreenF(g), setBlueF(b), setAlphaF(alpha);
     }

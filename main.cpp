@@ -7,6 +7,7 @@
 #include "camera.h"
 #include "objects.h"
 #include "material.h"
+#include "raytracer.h"
 
 int main(int argc, char *argv[])
 {
@@ -24,7 +25,7 @@ int main(int argc, char *argv[])
     qreal mar = s.material.ambient().redF();
     qreal p1 = Scene::lights().first().position.x;
     gObject o1 = Scene::scene().objects().first();
-
+    Color c3 = Raytracer::trace(ray);
     qreal q = 0;
 
     QApplication a(argc, argv);
