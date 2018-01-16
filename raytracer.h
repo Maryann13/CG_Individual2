@@ -16,12 +16,15 @@ public:
     {
         gObject obj = Scene::scene().objects().first();
         Reflection refl = obj.cast(ray);
+        bool lighted = false;
         foreach (auto o, Scene::scene().objects())
         {
             Reflection r = o.cast(ray);
-            if (!r.null && zComp(ray.src)(r, refl))
+            if (lighted = !r.null && zComp(ray.src)(r, refl))
                 refl = r, obj = o;
         }
+        if (!lighted)
+            return Color();
         return lighting(obj.material, refl.fragPos, refl.normal, ray);
     }
 

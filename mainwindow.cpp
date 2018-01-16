@@ -12,7 +12,7 @@ void showImage(QGraphicsView * view, QGraphicsPixmapItem * pixmapItem,
     QPixmap pixmap = QPixmap::fromImage(img);
     pixmapItem->setPixmap(pixmap);
     view->scene()->setSceneRect(0, 0, pixmap.width(), pixmap.height());
-    view->fitInView(pixmapItem, Qt::KeepAspectRatio);
+    view->fitInView(pixmapItem);
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
                                     (qreal)(i % pixCnt) / h).rgb();
 
     showImage(ui->graphicsView, pixmapItem, imgRendered);
+
+    QImageWriter("rendered.png").write(imgRendered);
 }
 
 MainWindow::~MainWindow()
