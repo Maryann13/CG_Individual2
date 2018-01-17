@@ -33,7 +33,7 @@ public:
     {
         return Ray(f_position,
                    gVector(f_width * (x - 0.5),
-                           f_height * (y + 0.5), -0.5).normalize());
+                           f_height * (y - 0.5), -1.0).normalize());
     }
 };
 

@@ -21,8 +21,20 @@ public:
         return c;
     }
 
+    Color operator *(Color const & other) const
+    {
+        Color c(*this);
+        c.setRedF  (qMin(1.0, redF() * other.redF()));
+        c.setGreenF(qMin(1.0, greenF() * other.greenF()));
+        c.setBlueF (qMin(1.0, blueF() * other.blueF()));
+        c.setAlphaF(qMin(1.0, alphaF() * other.alphaF()));
+        return c;
+    }
+
     Color operator *(qreal k) const
     {
+        if (k < 0)
+            return Color();
         Color c(*this);
         c.setRedF  (qMin(1.0, redF() * k));
         c.setGreenF(qMin(1.0, greenF() * k));

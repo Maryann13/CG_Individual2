@@ -32,14 +32,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     imgRendered = QImage(w, h, QImage::Format_ARGB32);
 
+    Color c = Raytracer::getFrag(0.88, 0.5);
+    qreal r = c.redF();
+
     quint64 pixCnt = w * h;
     QRgb* iCp = (QRgb*)imgRendered.bits();
 
     for (quint64 i = 0; i < pixCnt; ++i)
-        iCp[i] = Raytracer::getFrag((qreal)(i / pixCnt) / w,
-                                    (qreal)(i % pixCnt) / h).rgb();
+        iCp[i] = Raytracer::getFrag((qreal)(i % w) / w,
+                                    (qreal)(i / w) / h).rgb();
 
-    showImage(ui->graphicsView, pixmapItem, imgRendered);
+    //showImage(ui->graphicsView, pixmapItem, imgRendered);
 
     QImageWriter("rendered.png").write(imgRendered);
 }

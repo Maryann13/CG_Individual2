@@ -53,6 +53,12 @@ public:
                        x * o.y - y * o.x);
     }
 
+    gVector reflect(gVector const & n) const
+    {
+        gVector v(*this);
+        return v - n * (v * n) * 2;
+    }
+
     gVector toBasis(gVector const & bv1,
                     gVector const & bv2,
                     gVector const & bv3)

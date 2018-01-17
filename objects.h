@@ -45,10 +45,10 @@ public:
 
     Reflection cast(Ray const & r) override
     {
-        gVector rc = r.src - position;
+        gVector rc = position - r.src;
 
         qreal a = r.dir * r.dir;
-        qreal b = 2 * (rc * r.dir);
+        qreal b = -2 * (rc * r.dir);
         qreal c = rc * rc - radius * radius;
 
         qreal t = solve(a, b, c);
@@ -95,7 +95,7 @@ public:
         Point x = r.src + r.dir * t;
 
         gVector v = (x - a).toBasis(b - a, c - a, n);
-        if (t > 0.001 && qAbs(r.dir * n) < 0.0001 &&
+        if (t > 0.001 && qAbs(r.dir * n) > 0.0001 &&
             v.x >= 0 && v.y >= 0 && v.x + v.y <= 1)
             return Reflection(x, n);
 

@@ -12,47 +12,58 @@
 class Raytracer
 {
 public:
-    static Color trace(Ray const & ray)
+    static Color trace(Ray const & ray, gObject * object, int depth = 1)
     {
-        gObject obj = Scene::scene().objects().first();
-        Reflection refl = obj.cast(ray);
+        if (depth == 0)
+            return Color();
+        gObject * obj = Scene::scene().objects().first();
+        Reflection refl = obj->cast(ray);
         bool lighted = false;
+
         foreach (auto o, Scene::scene().objects())
         {
-            Reflection r = o.cast(ray);
-            if (lighted = !r.null && zComp(ray.src)(r, refl))
-                refl = r, obj = o;
+            if (o == object)
+                break;
+            Reflection r = o->cast(ray);
+            if (!r.null && (refl.null || zComp(ray.src)(r, refl)))
+                refl = r, obj = o, lighted = true;
         }
         if (!lighted)
             return Color();
-        return lighting(obj.material, refl.fragPos, refl.normal, ray);
+        return lighting(obj, refl, ray, depth);
     }
 
     static Color getFrag(qreal x, qreal y)
     {
-        return trace(Scene::camera().ray(x, y));
+        return trace(Scene::camera().ray(x, y), nullptr, 3);
     }
 
 private:
-    static Color lighting(Material const & mat, Point const & pos,
-                          gVector const & n, Ray const & ray)
+    static Color lighting(gObject * obj,
+                          Reflection const & r, Ray const & ray,
+                          int depth)
     {
-        Color res = mat.ambient();
+        Color res = obj->material.ambient();
         bool guard = false;
         foreach (auto light, Scene::lights())
         {
-            gVector l = (light.position - pos).normalize();
+            gVector l = (r.fragPos - light.position).normalize();
             foreach (auto o, Scene::scene().objects()) {
-                if (guard = intersects(o.cast(Ray(pos, l)), pos, light.position))
+                if (guard = o != obj && intersects(o->cast(Ray(r.fragPos, gVector() - l)),
+                                                   r.fragPos, light.position))
                     break;
             }
             if (guard)
-                break;
-            gVector h = (l - ray.dir).normalize();
-            Color i = light.color * (10 / (light.position - pos).length());
+                continue;
+            gVector h = (ray.dir + l).normalize();
+            Color i = light.color * (10 / (light.position - r.fragPos).length());
 
-            res = res + mat.diffuse() * (l * n) +
-                        mat.specular() * qPow(h * n, mat.shininess());
+            res = res + (obj->material.diffuse() * (l * r.normal) +
+                  obj->material.specular() * qPow(h * r.normal,
+                                                  obj->material.shininess())) * i +
+                  obj->material.reflect()
+                        * Raytracer::trace(Ray(r.fragPos,
+                                               ray.dir.reflect(r.normal)), obj, depth - 1);
         }
         return res;
     }
@@ -73,7 +84,7 @@ private:
       bool operator ()(Reflection const & lhs,
                        Reflection const & rhs)
       {
-          return (lhs.fragPos - raySrc).length() <
+          return (lhs.fragPos - raySrc).length() <=
                  (rhs.fragPos - raySrc).length();
       }
 
